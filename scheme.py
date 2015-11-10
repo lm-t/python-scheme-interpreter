@@ -223,7 +223,13 @@ def do_if_form(expressions, env):
     """Evaluate an if form."""
     check_form(expressions, 2, 3)
     # BEGIN Question 13
-    "*** REPLACE THIS LINE ***"
+    #print(expressions)
+    if scheme_eval(expressions.first, env) is not False:
+        return scheme_eval(expressions.second.first, env)
+    elif expressions.second.second is nil:
+        return okay
+    else:
+        return scheme_eval(expressions.second.second.first, env)
     # END Question 13
 
 def do_and_form(expressions, env):
