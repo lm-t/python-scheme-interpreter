@@ -234,13 +234,13 @@ def do_and_form(expressions, env):
     # BEGIN Question 14B
     if expressions is nil:
         return True
-    value = scheme_eval(expressions.first, env)
-    if value is not False:
-        if expressions.second is nil:
-            return value
-        return do_and_form(expressions.second, env)
-    else:
-        return expressions.first
+    while expressions is not nil:
+        value = scheme_eval(expressions.first, env)
+        if scheme_true(value):
+            expressions = expressions.second
+        else:
+            return False
+    return value
     # END Question 14B
 
 def do_or_form(expressions, env):
