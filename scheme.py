@@ -91,6 +91,8 @@ def eval_all(expressions, env):
 def make_call_frame(procedure, args, env):
     """Make a frame that binds the formal parameters of PROCEDURE to ARGS."""
     # BEGIN Question 12
+    if isinstance(procedure, MuProcedure):
+        return env.make_child_frame(procedure.formals, args)
     return procedure.env.make_child_frame(procedure.formals, args)
     # END Question 12
 
@@ -271,7 +273,9 @@ def do_cond_form(expressions, env):
             test = scheme_eval(clause.first, env)
         if scheme_true(test):
             # BEGIN Question 15A
-            "*** REPLACE THIS LINE ***"
+            if clause.second is nil:
+                return test
+            return eval_all(clause.second, env)
             # END Question 15A
         expressions = expressions.second
         i += 1
@@ -288,7 +292,15 @@ def make_let_frame(bindings, env):
     if not scheme_listp(bindings):
         raise SchemeError("bad bindings list in let form")
     # BEGIN Question 16
-    "*** REPLACE THIS LINE ***"
+    formals = nil
+    vals = nil
+    while bindings is not nil:
+        check_form(bindings.first, 2, 2)
+        formals = Pair(bindings.first.first, formals)
+        vals = Pair(scheme_eval(bindings.first.second.first, env), vals)
+        bindings = bindings.second
+    check_formals(formals)
+    return env.make_child_frame(formals, vals)
     # END Question 16
 
 SPECIAL_FORMS = {
@@ -373,7 +385,8 @@ def do_mu_form(expressions, env):
     formals = expressions.first
     check_formals(formals)
     # BEGIN Question 17
-    "*** REPLACE THIS LINE ***"
+    body = expressions.second
+    return MuProcedure(formals, body)
     # END Question 17
 
 SPECIAL_FORMS["mu"] = do_mu_form
