@@ -79,12 +79,9 @@ def eval_all(expressions, env):
     # BEGIN Question 7
     if expressions is nil:
         return okay
-    #while len(expressions) is not 1:
-        #scheme_eval(expressions.first, env)
-        #expressions = expressions.second
-    if expressions.second is not nil:
+    while len(expressions) is not 1:
         scheme_eval(expressions.first, env)
-        return eval_all(expressions.second, env)
+        expressions = expressions.second
     return scheme_eval(expressions.first, env)
     # END Question 7
 
@@ -121,7 +118,7 @@ class Frame:
         if symbol in self.bindings:
             return self.bindings[symbol]
         elif hasattr(self.parent, 'bindings'):
-            return Frame.lookup(self.parent, symbol) #self.parent
+            return self.parent.lookup(symbol)
         # END Question 3
         raise SchemeError("unknown identifier: {0}".format(symbol))
 
@@ -184,7 +181,6 @@ def do_define_form(expressions, env):
     if scheme_symbolp(target):
         check_form(expressions, 2, 2)
         # BEGIN Question 5A
-        "*** REPLACE THIS LINE ***"
         value = scheme_eval(expressions.second.first, env)
         env.define(target, value)
         return target
