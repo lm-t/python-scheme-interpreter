@@ -17,7 +17,12 @@
 ;; Returns a list of two-element lists
 (define (enumerate s)
   ; BEGIN Question 18
-  'REPLACE-THIS-LINE
+  (define (enumerate-iter s count)
+    (if (null? s) nil
+      (cons (list count (car s)) (enumerate-iter (cdr s) (+ count 1)))
+      )
+    )
+    (enumerate-iter s 0)
   )
   ; END Question 18
 
@@ -80,4 +85,3 @@
   'REPLACE-THIS-LINE
   )
   ; END Question 21
-
