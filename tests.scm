@@ -9,6 +9,7 @@
 ;;; **********************************
 ;;; *** Add more of your own here! ***
 ;;; **********************************
+;;;
 
 ;;; These are examples from several sections of "The Structure
 ;;; and Interpretation of Computer Programs" by Abelson and Sussman.
@@ -580,7 +581,7 @@ one-through-four
 ;;; Extra credit ;;;
 ;;;;;;;;;;;;;;;;;;;;
 
-(exit)
+;(exit)
 
 ; Tail call optimization tests
 

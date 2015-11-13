@@ -68,7 +68,7 @@ def apply_primitive(procedure, args_scheme_list, env):
     # BEGIN Question 4
     if procedure.use_env:
         args.append(env)
-    try:
+    try :
         return procedure.fn(*args)
     except TypeError:
         raise SchemeError
@@ -88,9 +88,10 @@ def eval_all(expressions, env):
 def make_call_frame(procedure, args, env):
     """Make a frame that binds the formal parameters of PROCEDURE to ARGS."""
     # BEGIN Question 12
+    if isinstance(procedure, LambdaProcedure):
+        return procedure.env.make_child_frame(procedure.formals, args)
     if isinstance(procedure, MuProcedure):
         return env.make_child_frame(procedure.formals, args)
-    return procedure.env.make_child_frame(procedure.formals, args)
     # END Question 12
 
 ################
@@ -138,9 +139,8 @@ class Frame:
         if len(formals) != len(vals):
             raise SchemeError
         while formals is not nil:
-            child.bindings[formals.first] = vals.first
-            formals = formals.second
-            vals = vals.second
+            child.define(formals.first, vals.first)
+            formals, vals = formals.second, vals.second
         # END Question 10
         return child
 
@@ -213,8 +213,7 @@ def do_lambda_form(expressions, env):
     formals = expressions.first
     check_formals(formals)
     # BEGIN Question 8
-    body = expressions.second
-    return LambdaProcedure(formals, body, env)
+    return LambdaProcedure(formals, expressions.second, env)
     # END Question 8
 
 def do_if_form(expressions, env):
@@ -223,10 +222,11 @@ def do_if_form(expressions, env):
     # BEGIN Question 13
     if scheme_true(scheme_eval(expressions.first, env)):
         return scheme_eval(expressions.second.first, env, True)
-    elif expressions.second.second is nil:
-        return okay
     else:
-        return scheme_eval(expressions.second.second.first, env, True)
+        if expressions.second.second is not nil:
+            return scheme_eval(expressions.second.second.first, env, True)
+        else:
+            return okay
     # END Question 13
 
 def do_and_form(expressions, env):
@@ -240,12 +240,12 @@ def do_and_form(expressions, env):
             expressions = expressions.second
         else:
             return False
+
     return scheme_eval(expressions.first, env, True)
     # END Question 14B
 
 def do_or_form(expressions, env):
     """Evaluate a short-circuited or form."""
-    # BEGIN Question 14B
     if expressions is nil:
         return False
     while len(expressions) > 1:
@@ -254,7 +254,9 @@ def do_or_form(expressions, env):
             return value
         else:
             expressions = expressions.second
+
     return scheme_eval(expressions.first, env, True)
+    "*** REPLACE THIS LINE ***"
     # END Question 14B
 
 def do_cond_form(expressions, env):
@@ -291,15 +293,18 @@ def make_let_frame(bindings, env):
     if not scheme_listp(bindings):
         raise SchemeError("bad bindings list in let form")
     # BEGIN Question 16
-    formals = nil
-    vals = nil
-    while bindings is not nil:
-        check_form(bindings.first, 2, 2)
-        formals = Pair(bindings.first.first, formals)
-        vals = Pair(scheme_eval(bindings.first.second.first, env), vals)
-        bindings = bindings.second
-    check_formals(formals)
-    return env.make_child_frame(formals, vals)
+    l = len(bindings)
+    if l:
+        symbols, values = nil, nil
+        for _ in range(l):
+            check_form(bindings.first, 2, 2)
+            if scheme_symbolp(bindings.first.first):
+                symbols = Pair(bindings.first.first, symbols)
+            else:
+                raise SchemeError
+            values = Pair(scheme_eval(bindings.first.second.first, env), values)
+            bindings = bindings.second
+    return env.make_child_frame(symbols, values)
     # END Question 16
 
 SPECIAL_FORMS = {
@@ -337,15 +342,14 @@ def check_formals(formals):
     >>> check_formals(read_line("(a b c)"))
     """
     # BEGIN Question 11B
-    def check(formals, lst=[]):
-        if formals is nil:
-            return None
-        if not scheme_symbolp(formals.first) or formals.first in lst:
+
+    d = []
+    while formals is not nil:
+        if not scheme_symbolp(formals.first) or formals.first in d:
             raise SchemeError
         else:
-            lst.append(formals.first)
-            return check(formals.second)
-    check(formals)
+            d.append(formals.first)
+            formals = formals.second
     # END Question 11B
 
 #################
@@ -384,8 +388,7 @@ def do_mu_form(expressions, env):
     formals = expressions.first
     check_formals(formals)
     # BEGIN Question 17
-    body = expressions.second
-    return MuProcedure(formals, body)
+    return MuProcedure(formals, expressions.second)
     # END Question 17
 
 SPECIAL_FORMS["mu"] = do_mu_form
