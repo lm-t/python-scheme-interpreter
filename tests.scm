@@ -10,6 +10,23 @@
 ;;; *** Add more of your own here! ***
 ;;; **********************************
 ;;;
+;;;eval procedures
+(eval '(+ 5 2))
+;expect 7
+(eval (eval (eval (define x (define y (define z 1234567))))))
+;expect 1234567
+
+;;;testing macro functionality
+;;;make sure scheme_eval is not scheme_optimized_eval
+;(define-macro (twice expr) (list 'begin expr expr))
+;(twice (print 7))
+;;expect okay
+
+;;;Mu Procedure
+(define f (mu (x) (* x y)))
+(define (g y) (+ y (f 2)))
+(g 3)
+;expect 9
 
 ;;; These are examples from several sections of "The Structure
 ;;; and Interpretation of Computer Programs" by Abelson and Sussman.

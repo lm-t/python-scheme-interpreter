@@ -41,16 +41,11 @@
   (cond ((< total 0) nil)
         ((= total 0) (list nil))
         ((null? denoms) nil)
-        (else (combine (cons-all (car denoms) (list-change (- total (car denoms)) denoms))
+        (else (append (cons-all (car denoms) (list-change (- total (car denoms)) denoms))
                     (list-change total (cdr denoms))
               )
           )
     )
-  )
-(define (combine l1 l2)
-  (if (null? l1) l2
-    (cons (car l1) (combine (cdr l1) l2))
-  )
   )
   ;END Question 19
 (define (list-count total denoms)

@@ -30,10 +30,20 @@ def scheme_eval(expr, env, _=None): # Optional third argument is ignored
     first, rest = expr.first, expr.second
     if scheme_symbolp(first) and first in SPECIAL_FORMS:
         result = SPECIAL_FORMS[first](rest, env)
+    ###Macro###
+    elif first == "define-macro":
+        result = do_define_form(rest, env, True)
+    ###Macro###
     else:
         procedure = scheme_eval(first, env)
-        args = rest.map(lambda operand: scheme_eval(operand, env))
-        result = scheme_apply(procedure, args, env)
+         ###Macro###
+        if hasattr(procedure, 'is_macro'):
+            apply_direct = scheme_apply(procedure, rest, env)
+            result = scheme_eval(apply_direct, env)
+        else:
+        ###Macro###
+            args = rest.map(lambda operand: scheme_eval(operand, env))
+            result = scheme_apply(procedure, args, env)
     return result
 
 def self_evaluating(expr):
@@ -174,7 +184,7 @@ class LambdaProcedure(UserDefinedProcedure):
 # Special forms #
 #################
 
-def do_define_form(expressions, env):
+def do_define_form(expressions, env, macro=False):
     """Evaluate a define form."""
     check_form(expressions, 2)
     target = expressions.first
@@ -188,6 +198,10 @@ def do_define_form(expressions, env):
     elif isinstance(target, Pair) and scheme_symbolp(target.first):
         # BEGIN Question 9A
         lbd = LambdaProcedure(target.second, expressions.second, env)
+        ###Macro###
+        if macro:
+            lbd.is_macro = True
+        ###Macro###
         env.define(target.first, lbd)
         return target.first
         # END Question 9A
