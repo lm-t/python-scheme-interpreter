@@ -10,6 +10,173 @@
 ;;; *** Add more of your own here! ***
 ;;; **********************************
 ;;;
+
+#t
+; expect True
+
+"hello world"
+; expect "hello world"
+
+;;;problem 4
+;;;Testing more primitive procedures
+(boolean? True)
+; expect True
+
+(not 1)
+; expect False
+
+(pair? (cons 2 3))
+; expect True
+
+(null? nil)
+; expect True
+
+(list? '(2 3))
+; expect True
+
+(symbol? 'a)
+; expect True
+
+(number? 1)
+; expect True
+
+(expt 2 4)
+; expect 16
+
+(abs -1)
+; expect 1
+
+(list (quotient -15 2) (modulo -15 2) (remainder -15 2))
+; expect (-7 1 -1)
+
+(list (= 1 1) (> 1 1) (<= 1 1) (odd? 1))
+; expect (True False True True)
+
+;;;problem 5A
+(define a 1)
+; expect a
+
+(define b 'a)
+; expect b
+
+b
+; expect a
+
+(eval b)
+; expect 1
+
+(define a (define b 1))
+a
+; expect b
+
+(eval a)
+; expect 1
+
+;;;problem 6B
+;;;a lot tested in 2.3.1
+
+(eval (cons 'cdr '('(1 2))))
+; expect (2)
+
+;;;problem 7
+(begin (+ 2 3) (+ 20 22))
+; expect 42
+
+(define x (begin '(1 1) (newline) (+ 1 1)))
+(+ x 5)
+; expect 7
+
+;;;problem 8
+(lambda (x y) (* x y))
+; expect (lambda (x y) (* x y))
+
+;;;problem 9A
+(define (go x) x)
+;expect go
+(go 'bears)
+;expect bears
+
+;;;till problem 12
+(define (cube x) (* x (* x x)))
+; expect cube
+
+(cube 5)
+; expect 125
+
+;;;problem 13: test if
+
+(if False (/ 1 0) 42)
+; expect 42
+
+(if 0 1 2)
+; expect 1
+
+(if (= 0 1) 'yolo)
+; expect okay
+
+(begin (define (factorial x) (if (= x 0) 1 (* x (factorial (- x 1))))) (factorial 5))
+; expect 120
+
+;;;problem 14B: test and&or expressions
+(or 42 (/ 1 0))
+; expect 42
+
+(and 1 2 False (/ 1 0))
+; expect False
+
+(or False (* 1 0) 42)
+; expect 0
+
+;;;problem 15A: test cond
+(cond (else 1) ((/ 1 0) 42))
+; expect Error: else must be last
+
+(cond (False 1) (False 3))
+; expect okay
+
+(cond ((+ 0 0)))
+; expect 0
+;;;problem 16: test let
+(let ((t 24)
+      (u (- 65 20))
+      (v 'pop))
+    (list t u v))
+;expect (24 45 pop)
+
+;;;problem 17: test Mu form
+(define f (mu (x) (* x y)))
+(define (g y) (+ y (f 2)))
+(g 3)
+;expect 9
+
+;;;general test cases
+(eval (define a 1))
+; expect 1
+
+(eval ''(1 2 3))
+; expect (1 2 3)
+
+(((lambda (f) (lambda (x) (f f x)))
+       (lambda (f k) (if (zero? k) 1 (* k (f f (- k 1)))))) 5)
+; expect 120
+;;; extra credit
+;;; testing tail calls in begin
+(define (sum n total)
+  (begin 2 3
+    (if (zero? n) total
+              (sum (- n 1) (+ n total)))))
+(sum 1001 0)
+; expect 501501
+
+;;; testing tail calls in let
+(define (sum n total)
+  (begin 2 3
+    (let ((m n))
+    (if (zero? n) total
+              (sum (- m 1) (+ m total))))))
+(sum 1001 0)
+; expect 501501
+
 ;;;eval procedures
 (eval '(+ 5 2))
 ;expect 7
@@ -21,12 +188,6 @@
 ;(define-macro (twice expr) (list 'begin expr expr))
 ;(twice (print 7))
 ;;expect okay
-
-;;;Mu Procedure
-(define f (mu (x) (* x y)))
-(define (g y) (+ y (f 2)))
-(g 3)
-;expect 9
 
 ;;; These are examples from several sections of "The Structure
 ;;; and Interpretation of Computer Programs" by Abelson and Sussman.
